@@ -1,9 +1,16 @@
-export default async function Layout({
+import Header from '@/components/header';
+
+export default function AuthLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <div className="max-w-7xl flex flex-col gap-12 items-start">{children}</div>
+    <>
+      <Header />
+      <div className="flex justify-center items-center min-h-screen w-full">
+        {children}
+      </div>
+    </>
   );
 }

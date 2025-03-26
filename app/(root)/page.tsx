@@ -28,7 +28,7 @@ export default async function Home() {
 
             <div className="flex gap-4 justify-center">
               <Button className="h-12 px-8 rounded-xl text-lg" asChild>
-                <Link href="/signup">
+                <Link href="/sign-up">
                   Get Started Free
                 </Link>
               </Button>

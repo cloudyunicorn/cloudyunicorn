@@ -3,7 +3,7 @@ import { ThemeProvider } from 'next-themes';
 import './globals.css';
 import { SupabaseProvider } from '@/providers/supabase-provider';
 import Footer from '@/components/Footer';
-import Header from "@/components/header";
+import Header from '@/components/header';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -35,13 +35,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <div className="flex flex-col min-h-screen max-w-7xl mx-auto">
-              <Header />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer />
-            </div>
+            <main>{children}</main>
           </ThemeProvider>
         </body>
       </SupabaseProvider>
