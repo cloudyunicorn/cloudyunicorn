@@ -1,9 +1,9 @@
 'use client';
 
-import { DashboardHeader } from '@/components/dashboard-header';
 import { AppSidebar, data } from '@/components/sidebar/AppSidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import React, { useState } from 'react';
+import { DashboardHeader } from "./dashboard-header";
 
 const defaultItem = data.navMain.find((item) => item.title === 'Dashboard');
 
@@ -27,6 +27,8 @@ export default function DashboardLayout({
     setActiveItem(title); // Set active sidebar item
   }
 
+  console.log(typeof activeItem)
+
   return (
     <SidebarProvider>
       <AppSidebar
@@ -35,7 +37,7 @@ export default function DashboardLayout({
         onSelectComponent={handleSelectComponent}
       />
       <SidebarInset>
-        <DashboardHeader />
+        <DashboardHeader activeItem={activeItem} />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             {ActiveComponent ? React.createElement(ActiveComponent) : children}

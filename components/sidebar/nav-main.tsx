@@ -74,9 +74,9 @@ export function NavMain({
                   }}
                   className={`${
                     activeItem === item.title
-                      ? 'bg-primary/50 text-white'
-                      : 'text-gray-100'
-                  } hover:bg-primary/40 hover:text-white duration-200 ease-in-out`}
+                      ? 'bg-sidebar-select'
+                      : ''
+                  }`}
                 >
                   {item.icon && <item.icon size={20} />}
                   <span>{item.title}</span>
