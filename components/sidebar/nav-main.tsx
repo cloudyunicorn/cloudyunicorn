@@ -19,10 +19,18 @@ interface NavItem {
 
 interface NavMainProps {
   items: NavItem[];
-  onSelectComponent: (callback: () => React.ComponentType<any> | null) => void;
+  activeItem: string | null;
+  onSelectComponent: (
+    title: string,
+    callback: () => React.ComponentType<any> | null
+  ) => void;
 }
 
-export function NavMain({ items, onSelectComponent }: NavMainProps) {
+export function NavMain({
+  items,
+  activeItem,
+  onSelectComponent,
+}: NavMainProps) {
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -59,11 +67,16 @@ export function NavMain({ items, onSelectComponent }: NavMainProps) {
                 <SidebarMenuButton
                   tooltip={item.title}
                   onClick={() => {
-                  if (item.component) {
-                    // Wrap the component in a callback so that state remains a function
-                    onSelectComponent(() => item.component!);
-                  }
-                }}
+                    if (item.component) {
+                      // Wrap the component in a callback so that state remains a function
+                      onSelectComponent(item.title, () => item.component!);
+                    }
+                  }}
+                  className={`${
+                    activeItem === item.title
+                      ? 'bg-primary/50 text-white'
+                      : 'text-gray-100'
+                  } hover:bg-primary/40 hover:text-white duration-200 ease-in-out`}
                 >
                   {item.icon && <item.icon size={20} />}
                   <span>{item.title}</span>

@@ -45,7 +45,8 @@ interface NavItem {
 
 interface SidebarMenuProps extends React.ComponentProps<typeof Sidebar> {
   items: NavItem[];
-  onSelectComponent: (callback: () => React.ComponentType<any> | null) => void;
+  activeItem: string | null;
+  onSelectComponent: (title: string, callback: () => React.ComponentType<any> | null) => void;
 }
 
 export const data = {
@@ -122,6 +123,7 @@ export const data = {
 
 export function AppSidebar({
   items,
+  activeItem,
   onSelectComponent,
   ...props
 }: SidebarMenuProps) {
@@ -144,7 +146,7 @@ export function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         {/* Pass onSelectComponent so NavMain can trigger inline component changes if needed */}
-        <NavMain items={data.navMain} onSelectComponent={onSelectComponent} />
+        <NavMain items={data.navMain} activeItem={activeItem} onSelectComponent={onSelectComponent} />
         <NavDocuments items={data.documents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
