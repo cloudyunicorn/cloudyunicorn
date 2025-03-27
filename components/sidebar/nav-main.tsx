@@ -1,14 +1,14 @@
-import React from "react";
-import { MailIcon, PlusCircleIcon, type LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { MailIcon, PlusCircleIcon, type LucideIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import Link from "next/link";
+} from '@/components/ui/sidebar';
+import Link from 'next/link';
 
 interface NavItem {
   title: string;
@@ -19,7 +19,7 @@ interface NavItem {
 
 interface NavMainProps {
   items: NavItem[];
-  onSelectComponent: (component: React.ComponentType<any> | null) => void;
+  onSelectComponent: (callback: () => React.ComponentType<any> | null) => void;
 }
 
 export function NavMain({ items, onSelectComponent }: NavMainProps) {
@@ -58,7 +58,12 @@ export function NavMain({ items, onSelectComponent }: NavMainProps) {
               ) : (
                 <SidebarMenuButton
                   tooltip={item.title}
-                  onClick={() => item.component && onSelectComponent(item.component)}
+                  onClick={() => {
+                  if (item.component) {
+                    // Wrap the component in a callback so that state remains a function
+                    onSelectComponent(() => item.component!);
+                  }
+                }}
                 >
                   {item.icon && <item.icon size={20} />}
                   <span>{item.title}</span>

@@ -1,6 +1,6 @@
 'use client';
 
-import React from "react";
+import React from 'react';
 import {
   BarChartIcon,
   Calendar,
@@ -13,7 +13,7 @@ import {
   SearchIcon,
   SettingsIcon,
   SwatchBook,
-} from "lucide-react";
+} from 'lucide-react';
 
 import {
   Sidebar,
@@ -23,101 +23,108 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { NavMain } from "./nav-main";
-import { NavDocuments } from "./nav-documents";
-import Image from "next/image";
-import Logo from "@/assets/logo.png";
-import { NavSecondary } from "./nav-secondary-";
-import { NavUser } from "./nav-user";
-import CalendarComponent from "@/components/calendar";
-import CalenderNew from "@/components/CalenderNew";
+} from '@/components/ui/sidebar';
+import { NavMain } from './nav-main';
+import { NavDocuments } from './nav-documents';
+import Image from 'next/image';
+import Logo from '@/assets/logo.png';
+import { NavSecondary } from './nav-secondary-';
+import { NavUser } from './nav-user';
+import CalendarComponent from '@/components/calendar';
+import Dashboard from "@/app/dashboard/page";
+import Analytics from "../analytics";
+import Posts from "../posts";
+import Templates from "../templates";
 
 interface NavItem {
   title: string;
   url?: string;
-  component?: React.ComponentType<any>;
+  component?: React.ComponentType;
   icon?: React.ComponentType<{ size?: number }>;
 }
 
 interface SidebarMenuProps extends React.ComponentProps<typeof Sidebar> {
   items: NavItem[];
-  onSelectComponent: (component: React.ComponentType<any> | null) => void;
+  onSelectComponent: (callback: () => React.ComponentType<any> | null) => void;
 }
 
 export const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "@/assets/logo.png",
+    name: 'shadcn',
+    email: 'm@example.com',
+    avatar: '@/assets/logo.png',
   },
   navMain: [
     {
-      title: "Dashboard",
-      url: "/dashboard",
+      title: 'Dashboard',
+      component: Dashboard,
       icon: LayoutDashboardIcon,
     },
     {
-      title: "Calendar",
+      title: 'Calendar',
       // If you want to render a component inline instead of navigating,
       // you can pass the component property (e.g., component: CalendarComponent).
       // For now, I'll leave the URL so it navigates to the calendar page.
-      component: CalenderNew,
+      component: CalendarComponent,
       icon: Calendar,
     },
     {
-      title: "Analytics",
-      url: "/analytics",
+      title: 'Analytics',
+      component: Analytics,
       icon: BarChartIcon,
     },
     {
-      title: "Posts",
-      url: "/posts",
+      title: 'Posts',
+      component: Posts,
       icon: HeartHandshake,
     },
     {
-      title: "Templates",
-      url: "/templates",
+      title: 'Templates',
+      component: Templates,
       icon: SwatchBook,
     },
   ],
   navSecondary: [
     {
-      title: "Settings",
-      url: "/settings",
+      title: 'Settings',
+      url: '/settings',
       icon: SettingsIcon,
     },
     {
-      title: "Get Help",
-      url: "/help",
+      title: 'Get Help',
+      url: '/help',
       icon: HelpCircleIcon,
     },
     {
-      title: "Search",
-      url: "/search",
+      title: 'Search',
+      url: '/search',
       icon: SearchIcon,
     },
   ],
   documents: [
     {
-      name: "Assets",
-      url: "/assets",
+      name: 'Assets',
+      url: '/assets',
       icon: DatabaseIcon,
     },
     {
-      name: "Reports",
-      url: "/reports",
+      name: 'Reports',
+      url: '/reports',
       icon: ClipboardListIcon,
     },
     {
-      name: "Word Assistant",
-      url: "/word-assistant",
+      name: 'Word Assistant',
+      url: '/word-assistant',
       icon: FileIcon,
     },
   ],
 };
 
-export function AppSidebar({ items, onSelectComponent, ...props }: SidebarMenuProps) {
+export function AppSidebar({
+  items,
+  onSelectComponent,
+  ...props
+}: SidebarMenuProps) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
