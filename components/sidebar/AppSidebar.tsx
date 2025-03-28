@@ -35,6 +35,7 @@ import Dashboard from "@/app/dashboard/page";
 import Analytics from "../analytics";
 import Posts from "../posts";
 import Templates from "../templates";
+import SocialAccounts from "../social-accounts";
 
 interface NavItem {
   title: string;
@@ -84,6 +85,21 @@ export const data = {
       component: Templates,
       icon: SwatchBook,
     },
+    {
+      title: 'Assets',
+      component: SocialAccounts,
+      icon: DatabaseIcon,
+    },
+    {
+      title: 'Social Accounts',
+      component: SocialAccounts,
+      icon: ClipboardListIcon,
+    },
+    {
+      title: 'Word Assistant',
+      component: SocialAccounts,
+      icon: FileIcon,
+    },
   ],
   navSecondary: [
     {
@@ -109,7 +125,7 @@ export const data = {
       icon: DatabaseIcon,
     },
     {
-      name: 'Reports',
+      name: 'Social Accounts',
       url: '/reports',
       icon: ClipboardListIcon,
     },
@@ -147,7 +163,7 @@ export function AppSidebar({
       <SidebarContent>
         {/* Pass onSelectComponent so NavMain can trigger inline component changes if needed */}
         <NavMain items={data.navMain} activeItem={activeItem} onSelectComponent={onSelectComponent} />
-        <NavDocuments items={data.documents} />
+        {/* <NavDocuments items={data.documents} /> */}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

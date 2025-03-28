@@ -27,8 +27,6 @@ export default function DashboardLayout({
     setActiveItem(title); // Set active sidebar item
   }
 
-  console.log(typeof activeItem)
-
   return (
     <SidebarProvider>
       <AppSidebar

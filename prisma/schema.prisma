@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
@@ -24,12 +24,14 @@ model User {
 }
 
 model SocialAccount {
-  id          String          @id @default(cuid())
-  platform    String // 'twitter', 'instagram', etc.
-  accessToken String
-  userId      String
-  user        User            @relation(fields: [userId], references: [id])
-  posts       ScheduledPost[]
+  id             String          @id @default(cuid())
+  platform       String // 'twitter', 'instagram', etc.
+  accessToken    String
+  refreshToken   String? // Optional refresh token
+  tokenExpiresAt DateTime? // Optional expiration
+  userId         String
+  user           User            @relation(fields: [userId], references: [id])
+  posts          ScheduledPost[]
 }
 
 model ContentCalendar {
