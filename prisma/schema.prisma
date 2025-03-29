@@ -32,6 +32,8 @@ model SocialAccount {
   userId         String
   user           User            @relation(fields: [userId], references: [id])
   posts          ScheduledPost[]
+
+  @@unique([userId, platform]) // Ensures a user has only one account per platform
 }
 
 model ContentCalendar {
