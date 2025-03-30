@@ -1,9 +1,12 @@
 import React from 'react'
+import PostTweetForm from "../PostTweetButton"
 
-const Posts = () => {
+const PostTweet = () => {
   return (
-    <div>Posts</div>
+    <div>
+      <PostTweetForm />
+    </div>
   )
 }
 
-export default Posts
+export default PostTweet

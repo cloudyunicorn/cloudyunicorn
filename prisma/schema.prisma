@@ -27,6 +27,7 @@ model SocialAccount {
   id             String          @id @default(cuid())
   platform       String // 'twitter', 'instagram', etc.
   accessToken    String
+  accessTokenSecret String?
   refreshToken   String? // Optional refresh token
   tokenExpiresAt DateTime? // Optional expiration
   userId         String

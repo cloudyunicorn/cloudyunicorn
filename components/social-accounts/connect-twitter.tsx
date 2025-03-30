@@ -5,10 +5,24 @@ import { useState } from "react";
 export default function ConnectTwitterButton() {
   const [loading, setLoading] = useState(false);
 
-  const handleConnectTwitter = () => {
+  const handleConnectTwitter = async () => {
     setLoading(true);
-    // Redirect to the API route for Twitter connection
-    window.location.href = "/api/social/connect";
+    try {
+      // Call the API route to get the Twitter auth URL and request token
+      const res = await fetch("/api/twitter/request", { method: "GET" });
+      const data = await res.json();
+      if (data.error) {
+        console.error("Error getting Twitter auth link:", data.error);
+        setLoading(false);
+        return;
+      }
+      // Redirect the user to Twitter for authentication
+      window.location.href = data.authUrl;
+    } catch (error) {
+      console.error("Error connecting Twitter:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

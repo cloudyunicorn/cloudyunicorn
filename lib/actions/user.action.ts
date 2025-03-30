@@ -1,6 +1,5 @@
 "use server"
 
-import { useSupabase } from "@/providers/supabase-provider";
 import { createClient } from "@/utils/supabase/server";
 import { encodedRedirect } from "@/utils/utils";
 import { redirect } from "next/navigation";
@@ -34,4 +33,13 @@ export async function signInAction(values: FormValues) {
     return encodedRedirect("error", "/sign-in", error.message);
   }
   return redirect("/");
+}
+
+export async function getUserId() {
+  const supabase = await createClient()
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) {
+    throw new Error("User not found");
+  }
+  return data.user.id;
 }
