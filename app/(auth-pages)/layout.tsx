@@ -8,7 +8,7 @@ export default function AuthLayout({
   return (
     <>
       <Header />
-      <div className="flex justify-center items-center min-h-screen w-full">
+      <div className="flex justify-center items-center w-full">
         {children}
       </div>
     </>

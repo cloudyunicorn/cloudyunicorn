@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 
 export default async function Home() {
   return (
-    <>
-      <main className="flex-1">
+    
+      <main className="flex-1 relative min-h-[calc(100vh-80px)]">
         {/* Hero Section */}
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="flex items-center justify-center">
           <div className="max-w-7xl px-4 py-20 mx-auto text-center">
             <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border shadow-sm">
               <Sparkles className="h-5 w-5 text-primary" />
@@ -94,6 +94,6 @@ export default async function Home() {
           </div>
         </div>
       </main>
-    </>
+  
   );
 }
