@@ -6,6 +6,7 @@ import { RiTwitterXFill } from 'react-icons/ri';
 import { AiFillLinkedin } from 'react-icons/ai';
 import Link from 'next/link';
 import TwitterAccountStatus from "./twitterAccountStatus";
+import TwitterProfileCard from "../TwitterProfileCard";
 
 export default function SocialAccountsSidebar() {
   return (
