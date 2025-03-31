@@ -21,7 +21,6 @@ export async function POST(req: Request) {
         refreshToken,
       },
     });
-    console.log("Upsert result:", result);
     return NextResponse.json({ message: "Twitter account connected successfully" });
   } catch (err: any) {
     console.error("Error saving Twitter connection:", err);

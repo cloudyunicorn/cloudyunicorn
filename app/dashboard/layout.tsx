@@ -33,6 +33,7 @@ export default function DashboardLayout({
         items={data.navMain}
         activeItem={activeItem}
         onSelectComponent={handleSelectComponent}
+        variant="inset"
       />
       <SidebarInset>
         <DashboardHeader activeItem={activeItem} />

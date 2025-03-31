@@ -1,6 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
+import { Button } from '../ui/button';
+import { RiTwitterXFill } from "react-icons/ri";
 
 export default function ConnectTwitterButton() {
   const [loading, setLoading] = useState(false);
@@ -9,29 +11,31 @@ export default function ConnectTwitterButton() {
     setLoading(true);
     try {
       // Call the API route to get the Twitter auth URL and request token
-      const res = await fetch("/api/twitter/request", { method: "GET" });
+      const res = await fetch('/api/twitter/request', { method: 'GET' });
       const data = await res.json();
       if (data.error) {
-        console.error("Error getting Twitter auth link:", data.error);
+        console.error('Error getting Twitter auth link:', data.error);
         setLoading(false);
         return;
       }
       // Redirect the user to Twitter for authentication
       window.location.href = data.authUrl;
     } catch (error) {
-      console.error("Error connecting Twitter:", error);
+      console.error('Error connecting Twitter:', error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <button
+    <Button
       onClick={handleConnectTwitter}
       disabled={loading}
-      className="bg-blue-500 text-white px-4 py-2 rounded-md"
+      variant="outline"
+      className="w-full gap-2"
     >
-      {loading ? "Connecting..." : "Connect Twitter"}
-    </button>
+      <RiTwitterXFill />
+      {loading ? 'Connecting...' : 'Connect Account'}
+    </Button>
   );
 }

@@ -19,8 +19,6 @@ export async function GET(req: Request) {
   const oauth_token = urlObj.searchParams.get('oauth_token');
   const oauth_verifier = urlObj.searchParams.get('oauth_verifier');
 
-  console.log('Callback params:', { oauth_token, oauth_verifier });
-
   if (!oauth_token || !oauth_verifier) {
     return NextResponse.json(
       { error: 'Missing oauth parameters' },
@@ -33,7 +31,6 @@ export async function GET(req: Request) {
   const oauth_token_secret = cookieStore.get(
     'twitter_oauth_token_secret'
   )?.value;
-  console.log('Retrieved oauth_token_secret from cookie:', oauth_token_secret);
   if (!oauth_token_secret) {
     return NextResponse.json(
       { error: 'Missing stored oauth token secret' },
@@ -63,8 +60,6 @@ export async function GET(req: Request) {
   const loginResult = await client.login(oauth_verifier);
 
   const { accessToken, accessSecret } = loginResult;
-
-  console.log('Login result:', loginResult);
 
   // Get the currently authenticated user ID from your app.
   const appUserId = await getUserId();
