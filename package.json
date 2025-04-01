@@ -5,8 +5,7 @@
     "build": "next build",
     "start": "next start",
     "postinstall": "prisma generate",
-    "process-scheduled": "node ./scripts/process-scheduled.js",
-    "vercel-build": "prisma generate && next build"
+    "process-scheduled": "node ./scripts/process-scheduled.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
