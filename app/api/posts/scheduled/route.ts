@@ -39,7 +39,12 @@ export async function GET() {
       where: { userId },
       include: {
         posts: {
-          where: { platform: 'twitter' },
+          where: { 
+            platform: 'twitter',
+            account: {
+              active: true
+            }
+          },
           orderBy: { scheduledAt: 'asc' }
         }
       }

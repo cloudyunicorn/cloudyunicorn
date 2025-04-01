@@ -74,12 +74,17 @@ export async function GET(req: Request) {
   try {
     await prisma.socialAccount.upsert({
       where: { userId_platform: { userId: appUserId, platform: 'twitter' } },
-      update: { accessToken, accessTokenSecret: accessSecret },
+      update: { 
+        accessToken, 
+        accessTokenSecret: accessSecret,
+        active: true 
+      },
       create: {
         userId: appUserId,
         platform: 'twitter',
         accessToken,
         accessTokenSecret: accessSecret,
+        active: true
       },
     });
   } catch (err: any) {

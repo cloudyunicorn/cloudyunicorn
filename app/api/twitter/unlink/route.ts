@@ -10,9 +10,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }
 
-    // Delete the Twitter account record for this user.
-    const result = await prisma.socialAccount.delete({
-      where: { userId_platform: { userId, platform: "twitter" } },
+    // Update the Twitter account record to mark as inactive
+    // @ts-ignore - Temporary until Prisma client is regenerated
+    const result = await prisma.socialAccount.updateMany({
+      where: { userId, platform: "twitter" },
+      data: { active: false }
     });
     return NextResponse.json({ message: "Twitter account unlinked successfully" }, { status: 200 });
   } catch (err: any) {

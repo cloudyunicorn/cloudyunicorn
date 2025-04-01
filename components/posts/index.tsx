@@ -10,7 +10,7 @@ const PostTweet = () => {
   }
 
   return (
-    <div>
+    <div className="p-4">
       <PostCreator onPostCreated={handlePostCreated} />
       <PostList key={refreshKey} />
     </div>

@@ -21,7 +21,10 @@ const PostList = () => {
           throw new Error('Failed to fetch scheduled posts')
         }
         const data = await response.json()
-        setPosts(data)
+        const sortedPosts = [...data].sort((a: ScheduledPost, b: ScheduledPost) => 
+          new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()
+        )
+        setPosts(sortedPosts)
       } catch (error) {
         console.error('Error fetching scheduled posts:', error)
       } finally {

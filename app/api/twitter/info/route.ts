@@ -8,7 +8,7 @@ export async function GET() {
     const account = await prisma.socialAccount.findUnique({
       where: { userId_platform: { userId, platform: "twitter" } },
     });
-    return NextResponse.json({ linked: !!account, account });
+    return NextResponse.json({ linked: !!(account?.active), account });
   } catch (error: any) {
     console.error("Error fetching Twitter info:", error);
     return NextResponse.json({ linked: false, error: error.message }, { status: 500 });

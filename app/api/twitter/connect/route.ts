@@ -13,12 +13,17 @@ export async function POST(req: Request) {
     // Upsert the Twitter connection info
     const result = await prisma.socialAccount.upsert({
       where: { userId_platform: { userId, platform: "twitter" } },
-      update: { accessToken, refreshToken },
+      update: { 
+        accessToken, 
+        refreshToken,
+        active: true 
+      },
       create: {
         userId,
         platform: "twitter",
         accessToken,
         refreshToken,
+        active: true
       },
     });
     return NextResponse.json({ message: "Twitter account connected successfully" });
