@@ -2,14 +2,53 @@ import { NextResponse } from "next/server";
 import { TwitterApi } from "twitter-api-v2";
 
 export async function GET() {
-  const callbackUrl = process.env.NEXT_PUBLIC_APP_URL + "/auth/twitter/callback";
-  const client = new TwitterApi({
-    appKey: process.env.TWITTER_APP_KEY!,
-    appSecret: process.env.TWITTER_APP_SECRET!,
-  });
+  // Validate environment variables
+  if (!process.env.TWITTER_APP_KEY || !process.env.TWITTER_APP_SECRET) {
+    console.error('Missing Twitter API credentials');
+    return NextResponse.json(
+      { error: 'Server configuration error' },
+      { status: 500 }
+    );
+  }
 
-  
-  const authLink = await client.generateAuthLink(callbackUrl);
+  if (!process.env.NEXT_PUBLIC_APP_URL) {
+    console.error('Missing NEXT_PUBLIC_APP_URL');
+    return NextResponse.json(
+      { error: 'Server configuration error' },
+      { status: 500 }
+    );
+  }
+
+  // Construct callback URL
+  const callbackUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/twitter/callback`;
+
+  let client;
+  try {
+    client = new TwitterApi({
+      appKey: process.env.TWITTER_APP_KEY,
+      appSecret: process.env.TWITTER_APP_SECRET
+    });
+  } catch (err) {
+    console.error('Error initializing Twitter client:', err);
+    return NextResponse.json(
+      { error: 'Failed to initialize Twitter API client' },
+      { status: 500 }
+    );
+  }
+
+  let authLink;
+  try {
+    authLink = await client.generateAuthLink(callbackUrl);
+    if (!authLink?.url || !authLink?.oauth_token || !authLink?.oauth_token_secret) {
+      throw new Error('Invalid auth link response from Twitter');
+    }
+  } catch (err) {
+    console.error('Error generating Twitter auth link:', err);
+    return NextResponse.json(
+      { error: 'Failed to generate Twitter authentication link' },
+      { status: 500 }
+    );
+  }
   
   // Create a response object with the authLink data
   const response = NextResponse.json({ authUrl: authLink.url, oauth_token: authLink.oauth_token });
