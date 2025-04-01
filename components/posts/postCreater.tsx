@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-// import { Calendar } from '@/components/ui/calendar'
+import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
@@ -94,13 +94,13 @@ const PostCreator = ({ onPostCreated }: PostCreatorProps) => {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
-              {/* <Calendar
+              <Calendar
                 mode="single"
                 selected={date}
                 onSelect={setDate}
                 initialFocus
                 disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-              /> */}
+              />
             </PopoverContent>
           </Popover>
 
