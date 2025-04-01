@@ -5,16 +5,33 @@ import prisma from '@/lib/prisma';
 import { getUserId } from '@/lib/actions/user.action';
 
 export async function GET(req: Request) {
+  // Validate environment variables
+  if (!process.env.TWITTER_APP_KEY || !process.env.TWITTER_APP_SECRET || !process.env.NEXT_PUBLIC_APP_URL) {
+    console.error('Missing required environment variables');
+    return NextResponse.json(
+      { error: 'Server configuration error' },
+      { status: 500 }
+    );
+  }
+
   let urlObj: URL;
-  if (req.url.includes('oauth_token') && req.url.includes('oauth_verifier')) {
-    urlObj = new URL(req.url);
-  } else {
-    // If not found, try the referer header.
-    const referer = req.headers.get('referer');
-    if (!referer) {
-      return NextResponse.json({ error: 'No referer header' }, { status: 400 });
+  try {
+    if (req.url.includes('oauth_token') && req.url.includes('oauth_verifier')) {
+      urlObj = new URL(req.url);
+    } else {
+      // If not found, try the referer header.
+      const referer = req.headers.get('referer');
+      if (!referer) {
+        return NextResponse.json({ error: 'No referer header' }, { status: 400 });
+      }
+      urlObj = new URL(referer);
     }
-    urlObj = new URL(referer);
+  } catch (err) {
+    console.error('Error parsing URL:', err);
+    return NextResponse.json(
+      { error: 'Invalid request URL' },
+      { status: 400 }
+    );
   }
   const oauth_token = urlObj.searchParams.get('oauth_token');
   const oauth_verifier = urlObj.searchParams.get('oauth_verifier');
