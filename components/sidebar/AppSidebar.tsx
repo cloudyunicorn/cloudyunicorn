@@ -51,11 +51,6 @@ interface SidebarMenuProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 export const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '@/assets/logo.png',
-  },
   navMain: [
     {
       title: 'Dashboard',
@@ -167,7 +162,7 @@ export function AppSidebar({
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );

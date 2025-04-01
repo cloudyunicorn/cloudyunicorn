@@ -17,6 +17,7 @@ datasource db {
 model User {
   id             String            @id @default(cuid())
   email          String            @unique
+  name           String?
   createdAt      DateTime          @default(now())
   socialAccounts SocialAccount[]
   calendars      ContentCalendar[]
@@ -50,6 +51,7 @@ model ScheduledPost {
   content     String
   mediaUrl    String?
   scheduledAt DateTime
+  postedAt    DateTime?
   status      String          @default("scheduled") // scheduled/published/failed
   platform    String
   calendarId  String

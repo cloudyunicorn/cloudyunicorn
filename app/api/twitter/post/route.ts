@@ -4,30 +4,78 @@ import { getUserId } from "@/lib/actions/user.action";
 import { NextResponse } from "next/server";
 import { TwitterApi } from "twitter-api-v2";
 
+import prisma from "@/lib/prisma";
+
 export async function POST(req: Request) {
   try {
-    const { tweet } = await req.json();
+    const { tweet, scheduledAt } = await req.json();
     if (!tweet) {
       return NextResponse.json({ error: "Tweet content is required" }, { status: 400 });
     }
 
-    // Retrieve the current user's id (from your server action)
     const userId = await getUserId();
+    // Get social account to get both tokens and ID
+    const socialAccount = await prisma.socialAccount.findUnique({
+      where: { userId_platform: { userId, platform: "twitter" } }
+    });
 
-    // Retrieve the social account tokens for Twitter
-    const tokens = await getSocialAccountTokens(userId, "twitter");
+    if (!socialAccount) {
+      return NextResponse.json({ error: "Twitter account not connected" }, { status: 400 });
+    }
 
-    // Create a Twitter client using the OAuth 1.0a credentials
+    // If scheduled for future, create scheduled post
+    if (scheduledAt) {
+      const scheduledDate = new Date(scheduledAt);
+      const now = new Date();
+      if (scheduledDate <= now) {
+        return NextResponse.json({ 
+          error: "Scheduled time must be in the future (including current time)" 
+        }, { status: 400 });
+      }
+
+      // Get or create user's default calendar
+      let calendar = await prisma.contentCalendar.findFirst({
+        where: { userId }
+      });
+
+      if (!calendar) {
+        calendar = await prisma.contentCalendar.create({
+          data: {
+            name: "My Content Calendar",
+            userId
+          }
+        });
+      }
+
+      const scheduledPost = await prisma.scheduledPost.create({
+        data: {
+          content: tweet,
+          scheduledAt: scheduledDate,
+          platform: "twitter",
+          calendarId: calendar.id,
+          accountId: socialAccount.id
+        }
+      });
+
+      return NextResponse.json({ 
+        message: "Tweet scheduled successfully",
+        post: scheduledPost 
+      });
+    }
+
+    // Immediate posting
     const twitterClient = new TwitterApi({
       appKey: process.env.TWITTER_APP_KEY!,
       appSecret: process.env.TWITTER_APP_SECRET!,
-      accessToken: tokens.accessToken,
-      accessSecret: tokens.accessTokenSecret!,
+      accessToken: socialAccount.accessToken,
+      accessSecret: socialAccount.accessTokenSecret!,
     });
 
-    // Post the tweet (using Twitter API v1.1 for user-context actions)
     const tweetResponse = await twitterClient.v2.tweet(tweet);
-    return NextResponse.json({ message: "Tweet posted successfully", tweet: tweetResponse });
+    return NextResponse.json({ 
+      message: "Tweet posted successfully", 
+      tweet: tweetResponse 
+    });
   } catch (err: any) {
     console.error("Error posting tweet:", err);
     return NextResponse.json({ error: err.message || "Internal Server Error" }, { status: 500 });
