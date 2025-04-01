@@ -2,22 +2,32 @@ import { NextResponse } from "next/server";
 import { TwitterApi } from "twitter-api-v2";
 
 export async function GET() {
-  // Validate environment variables
-  if (!process.env.TWITTER_APP_KEY || !process.env.TWITTER_APP_SECRET) {
-    console.error('Missing Twitter API credentials');
+  // Validate environment variables with detailed errors
+  if (!process.env.TWITTER_APP_KEY) {
+    console.error('Missing TWITTER_APP_KEY environment variable');
     return NextResponse.json(
-      { error: 'Server configuration error' },
+      { error: 'Server configuration error: Missing Twitter API key' },
+      { status: 500 }
+    );
+  }
+
+  if (!process.env.TWITTER_APP_SECRET) {
+    console.error('Missing TWITTER_APP_SECRET environment variable');
+    return NextResponse.json(
+      { error: 'Server configuration error: Missing Twitter API secret' },
       { status: 500 }
     );
   }
 
   if (!process.env.NEXT_PUBLIC_APP_URL) {
-    console.error('Missing NEXT_PUBLIC_APP_URL');
+    console.error('Missing NEXT_PUBLIC_APP_URL environment variable');
     return NextResponse.json(
-      { error: 'Server configuration error' },
+      { error: 'Server configuration error: Missing application URL' },
       { status: 500 }
     );
   }
+
+  console.log('Twitter OAuth environment variables verified');
 
   // Construct callback URL
   const callbackUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/twitter/callback`;
