@@ -15,7 +15,6 @@ const Modetoggle = () => {
   if (!mounted) {
     return null;
   }
-
   return (
     <Button
       variant="ghost"
