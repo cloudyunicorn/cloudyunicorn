@@ -12,7 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import UserButton from './user-button';
+// import UserButton from './user-button';
 import { useSupabase } from '@/providers/supabase-provider';
 import type { Session, AuthChangeEvent } from '@supabase/supabase-js';
 
@@ -45,7 +45,7 @@ const Menu = () => {
   return (
     <div className="flex justify-end gap-3 p-5">
       <nav className="hidden md:flex w-full max-w-xs gap-1">
-        {!session && (
+        {/* {!session && ( */}
           <>
             <Button asChild variant="ghost">
               <Link href="/sign-in">Sign In</Link>
@@ -54,9 +54,9 @@ const Menu = () => {
               <Link href="/sign-up">Sign Up</Link>
             </Button>
           </>
-        )}
+        {/* )} */}
         <Modetoggle />
-        {session && <UserButton />}
+        {/* {session && <UserButton />} */}
       </nav>
       <nav className="md:hidden flex items-center gap-2">
         <Modetoggle />
@@ -66,7 +66,7 @@ const Menu = () => {
           </SheetTrigger>
           <SheetContent className="flex flex-col items-start">
             <SheetTitle>Menu</SheetTitle>
-            {!session && (
+            {/* {!session && ( */}
               <>
                 <Button asChild variant="ghost">
                   <Link href="/sign-in">Sign In</Link>
@@ -75,7 +75,7 @@ const Menu = () => {
                   <Link href="/sign-up">Sign Up</Link>
                 </Button>
               </>
-            )}
+            {/* )} */}
             {session && (
               <Button asChild variant="ghost">
                 <Link href="/new-group">
@@ -83,7 +83,7 @@ const Menu = () => {
                 </Link>
               </Button>
             )}
-            {session && <UserButton />}
+            {/* {session && <UserButton />} */}
             <SheetDescription></SheetDescription>
           </SheetContent>
         </Sheet>

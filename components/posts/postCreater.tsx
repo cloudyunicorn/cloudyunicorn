@@ -48,13 +48,14 @@ const PostCreator = ({ onPostCreated }: PostCreatorProps) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          tweet: content,
-          scheduledAt
+          content,
+          scheduledAt: isScheduled ? scheduledAt : undefined
         }),
       })
 
       if (!response.ok) {
-        throw new Error('Failed to post tweet')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to post tweet')
       }
 
       setContent('')

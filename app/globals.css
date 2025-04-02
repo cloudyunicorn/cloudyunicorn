@@ -5,25 +5,25 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%; /* Soft off-white */
-    --foreground: 240 10% 20%; /* Deep navy blue */
+    --background: 0 0% 100%; /* Pure white */
+    --foreground: 240 6% 10%; /* Soft black */
     --card: 0 0% 100%; /* Pure white cards */
-    --card-foreground: 240 10% 20%;
+    --card-foreground: 240 6% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 20%;
-    --primary: 230 76% 58%; /* Vibrant blue */
+    --popover-foreground: 240 6% 10%;
+    --primary: 210 40% 56%; /* Softer blue */
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 96%; /* Light blue-gray */
-    --secondary-foreground: 240 10% 20%;
-    --muted: 220 14% 90%; /* Soft muted blue */
-    --muted-foreground: 220 8% 46%;
-    --accent: 210 80% 60%; /* Bright accent blue */
+    --secondary: 220 20% 94%; /* Very light gray */
+    --secondary-foreground: 240 6% 10%;
+    --muted: 220 20% 90%; /* Light gray */
+    --muted-foreground: 220 6% 30%;
+    --accent: 210 40% 56%; /* Matching primary */
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%; /* Clean red */
+    --destructive: 0 72% 56%; /* Softer red */
     --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 87%; /* Subtle border */
-    --input: 220 13% 87%;
-    --ring: 230 76% 58%; /* Focus ring matches primary */
+    --border: 220 13% 90%; /* Lighter border */
+    --input: 220 13% 90%;
+    --ring: 210 40% 56%; /* Matching primary */
     --radius: 0.5rem;
     --chart-1: 230 76% 58%; /* Primary blue */
     --chart-2: 160 75% 45%; /* Teal */
@@ -43,7 +43,7 @@
     --rbc-text-color: #1f2937;
     --rbc-event-bg: #e5e7eb;
     --rbc-event-text: #1f2937;
-    --rbc-off-range-bg: #e6e6e6;
+    --rbc-off-range-bg: #f3f4f6;
     --rbc-today-bg:#becde1;
   }
 
@@ -85,7 +85,7 @@
     --rbc-text-color: #f9fafb; /* Light text */
     --rbc-event-bg: #374151; /* Darker event background */
     --rbc-event-text: #f9fafb;
-    --rbc-off-range-bg: #374151;
+    --rbc-off-range-bg: #4b5563;
     --rbc-today-bg:#1a232f;
   }
 }
@@ -109,6 +109,17 @@
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+.rbc-month-view {
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+.rbc-time-view {
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border)) !important;
 }
 
 .rbc-toolbar {
@@ -150,13 +161,25 @@
 }
 
 .rbc-month-view .rbc-row-bg {
-  @apply gap-2 p-2;
+  @apply gap-0 p-0;
 }
 
 .rbc-day-bg {
-  @apply rounded-lg m-2;
-  border: none !important;
+  @apply rounded-none m-0;
+  border: 1px solid hsl(var(--border)/0.3) !important;
   background: transparent !important;
+}
+
+.rbc-off-range-bg {
+  background: var(--rbc-off-range-bg) !important;
+}
+
+.rbc-day-bg + .rbc-day-bg {
+  border-left: none !important;
+}
+
+.rbc-month-row + .rbc-month-row .rbc-day-bg {
+  border-top: none !important;
 }
 
 .rbc-month-view .rbc-date-cell {
@@ -167,6 +190,21 @@
   @apply rounded-lg border-none shadow-sm;
   padding: 2px 8px !important;
   transition: transform 0.2s ease;
+  min-height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.rbc-event-content {
+  overflow: visible !important;
+  white-space: nowrap !important;
+  text-overflow: clip !important;
+  padding: 0 4px !important;
+}
+
+.rbc-time-view .rbc-event {
+  min-width: 24px !important;
 }
 
 .rbc-event:hover {
@@ -207,13 +245,43 @@
   background-color: hsl(var(--accent)/0.1) !important;
 }
 
-/* Remove all internal borders */
-.rbc-month-view .rbc-row,
-.rbc-month-view .rbc-row > div,
-.rbc-header,
-.rbc-day-bg,
+/* Internal calendar borders */
+.rbc-month-view {
+  @apply border-separate border-spacing-0;
+}
+
+.rbc-month-row + .rbc-month-row {
+  border-top: 1px solid hsl(var(--border)/0.3) !important;
+}
+
+.rbc-header {
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  border-right: 1px solid hsl(var(--border)/0.3) !important;
+}
+
+.rbc-header:last-child {
+  border-right: none !important;
+}
+
+.rbc-day-bg {
+  border-right: 1px solid hsl(var(--border)/0.3) !important;
+  border-bottom: 1px solid hsl(var(--border)/0.3) !important;
+}
+
+.rbc-day-bg:last-child {
+  border-right: none !important;
+}
+
+.rbc-off-range-bg + .rbc-day-bg {
+  border-left: 1px solid hsl(var(--border)/0.3) !important;
+}
+
 .rbc-time-header-content {
-  border-color: hsl(var(--border)/0.5) !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+}
+
+.rbc-timeslot-group {
+  border-bottom: 1px solid hsl(var(--border)/0.2) !important;
 }
 
 /* Agenda view styling */
@@ -238,4 +306,8 @@
 
 .rbc-time-content > * + * > * {
   border-left: 1px solid hsl(var(--border)/0.3);
+}
+
+.rbc-event-label {
+  display: none !important;
 }

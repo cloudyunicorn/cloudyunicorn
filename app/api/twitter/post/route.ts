@@ -8,8 +8,8 @@ import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    const { tweet, scheduledAt } = await req.json();
-    if (!tweet) {
+    const { content, scheduledAt } = await req.json();
+    if (!content) {
       return NextResponse.json({ error: "Tweet content is required" }, { status: 400 });
     }
 
@@ -49,11 +49,12 @@ export async function POST(req: Request) {
 
       const scheduledPost = await prisma.scheduledPost.create({
         data: {
-          content: tweet,
+          content,
           scheduledAt: scheduledDate,
           platform: "twitter",
           calendarId: calendar.id,
-          accountId: socialAccount.id
+          accountId: socialAccount.id,
+          status: "scheduled"
         }
       });
 
@@ -71,9 +72,36 @@ export async function POST(req: Request) {
       accessSecret: socialAccount.accessTokenSecret!,
     });
 
-    const tweetResponse = await twitterClient.v2.tweet(tweet);
+    // For immediate posts, save to database first
+    let calendar = await prisma.contentCalendar.findFirst({
+      where: { userId }
+    });
+
+    if (!calendar) {
+      calendar = await prisma.contentCalendar.create({
+        data: {
+          name: "My Content Calendar",
+          userId
+        }
+      });
+    }
+
+    const post = await prisma.scheduledPost.create({
+      data: {
+        content,
+        scheduledAt: new Date(),
+        postedAt: new Date(),
+        platform: "twitter",
+        calendarId: calendar.id,
+        accountId: socialAccount.id,
+        status: "published"
+      }
+    });
+
+    const tweetResponse = await twitterClient.v2.tweet(content);
     return NextResponse.json({ 
-      message: "Tweet posted successfully", 
+      message: "Tweet posted successfully",
+      post,
       tweet: tweetResponse 
     });
   } catch (err: any) {

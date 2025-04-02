@@ -6,6 +6,7 @@ interface ScheduledPost {
   id: string
   content: string
   scheduledAt: string
+  postedAt?: string
   status: string
 }
 
@@ -46,7 +47,7 @@ const PostList = () => {
   return (
     <Card className="mt-4">
       <CardHeader>
-        <CardTitle>Scheduled Posts</CardTitle>
+        <CardTitle>Twitter Posts</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {posts.map((post) => (
@@ -56,11 +57,13 @@ const PostList = () => {
                 <div>
                   <p className="font-medium">{post.content}</p>
                   <p className="text-sm text-gray-500">
-                    Scheduled for: {format(new Date(post.scheduledAt), 'PPpp')}
+                    {post.postedAt 
+                      ? `Posted at: ${format(new Date(post.postedAt), 'PPpp')}`
+                      : `Scheduled for: ${format(new Date(post.scheduledAt), 'PPpp')}`}
                   </p>
                 </div>
-                <Badge variant={post.status === 'scheduled' ? 'default' : 'secondary'}>
-                  {post.status}
+                <Badge variant={post.postedAt ? 'default' : post.status === 'scheduled' ? 'default' : 'secondary'}>
+                  {post.postedAt ? 'Posted' : post.status}
                 </Badge>
               </div>
             </CardContent>

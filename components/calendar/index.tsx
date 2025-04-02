@@ -14,36 +14,83 @@ import { AiFillLinkedin } from "react-icons/ai";
 
 const localizer = momentLocalizer(moment);
 
+import { PostDialog } from "./PostDialog";
+
 interface CalendarEvent {
-  id: string;
-  title: string;
-  start: Date;
-  end: Date;
-  platform: "twitter" | "linkedin";
-  content: string;
+  id: string
+  title: string
+  start: Date
+  end: Date
+  scheduledAt: Date
+  platform: string
+  content: string
+  status: string
+  postedAt?: Date
+  events?: CalendarEvent[] // For grouped events
 }
 
 const SocialMediaCalendar = () => {
-  const [view, setView] = useState<View>(Views.WEEK);
+  const [view, setView] = useState<View>(Views.MONTH);
   const [date, setDate] = useState<Date>(new Date());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [showSidebar, setShowSidebar] = useState(false);
+  const [selectedPosts, setSelectedPosts] = useState<CalendarEvent[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Custom Event Component for calendar events.
-  const Event = ({ event }: { event: CalendarEvent }) => (
-    <div className="flex items-start p-1 bg-background rounded border border-muted">
-      <div className={`w-2 h-full rounded-l ${event.platform === "twitter" ? "bg-blue-500" : "bg-[#0A66C2]"}`} />
-      <div className="pl-2 flex-1">
-        <div className="flex items-center gap-2">
-          {event.platform === "twitter" ? (
-            <X className="h-4 w-4 text-blue-500" />
-          ) : (
-            <AiFillLinkedin className="h-4 w-4 text-[#0A66C2]" />
-          )}
-          <span className="text-sm font-medium">{event.platform}</span>
-        </div>
-        <p className="text-sm truncate">{event.content}</p>
-      </div>
+  // Group events by time period based on current view
+  const groupEvents = () => {
+    const groups: Record<string, CalendarEvent[]> = {};
+    
+    events.forEach(event => {
+      let key;
+      if (view === Views.MONTH) {
+        // Group by day for month view
+        key = event.start.toISOString().split('T')[0];
+      } else if (view === Views.WEEK) {
+        // Group by day for week view
+        key = `${event.start.getDate()}-${event.start.getMonth()}`;
+      } else {
+        // Group by hour for day view
+        key = `${event.start.getHours()}`;
+      }
+      
+      groups[key] = groups[key] || [];
+      groups[key].push(event);
+    });
+    
+    return Object.entries(groups).map(([key, events]) => ({
+      id: key,
+      title: `${events.length} posts`,
+      start: events[0].start,
+      end: events[0].end,
+      events,
+      platform: 'group',
+      content: '',
+      status: 'group',
+      scheduledAt: events[0].scheduledAt
+    }));
+  };
+
+  // Custom Event Component showing post counts
+  const EventCount = ({ event }: { event: CalendarEvent }) => (
+    <div 
+        className="
+          flex justify-center items-center 
+          p-1 rounded-full text-sm
+          bg-primary/10 hover:bg-primary/20
+          transition-colors cursor-pointer
+          min-w-[24px] min-h-[24px]
+          overflow-visible
+          whitespace-nowrap
+        "
+      onClick={(e) => {
+        e.stopPropagation();
+        setSelectedPosts(event.events || []);
+        setIsDialogOpen(true);
+      }}
+    >
+      <span className="font-medium">
+        {event.title}
+      </span>
     </div>
   );
 
@@ -64,29 +111,32 @@ const SocialMediaCalendar = () => {
     setDate(new Date());
   };
 
-  // Dummy fetch function; replace with your actual API call.
+  // Fetch scheduled posts from API
   useEffect(() => {
     async function fetchEvents() {
-      // Dummy data for demonstration.
-      const posts: CalendarEvent[] = [
-        {
-          id: "1",
-          title: "Scheduled: Meeting",
-          start: new Date("2025-04-10T10:00:00Z"),
-          end: new Date(new Date("2025-04-10T10:00:00Z").getTime() + 60 * 60 * 1000),
-          platform: "twitter",
-          content: "Team meeting announcement",
-        },
-        {
-          id: "2",
-          title: "Posted: Event Recap",
-          start: new Date("2025-04-05T14:00:00Z"),
-          end: new Date(new Date("2025-04-05T14:00:00Z").getTime() + 60 * 60 * 1000),
-          platform: "linkedin",
-          content: "Recap of our recent event",
-        },
-      ];
-      setEvents(posts);
+      try {
+        const response = await fetch('/api/posts/scheduled');
+        if (!response.ok) {
+          throw new Error('Failed to fetch scheduled posts');
+        }
+        const posts = await response.json();
+        
+        const calendarEvents = posts.map((post: any) => ({
+          id: post.id,
+          title: post.content,
+          start: new Date(post.scheduledAt),
+          end: new Date(new Date(post.scheduledAt).getTime() + 30 * 60 * 1000), // 30 min duration
+          scheduledAt: new Date(post.scheduledAt),
+          platform: post.platform,
+          content: post.content,
+          status: post.status,
+          postedAt: post.postedAt ? new Date(post.postedAt) : undefined
+        }));
+        
+        setEvents(calendarEvents);
+      } catch (error) {
+        console.error('Error fetching scheduled posts:', error);
+      }
     }
     fetchEvents();
   }, []);
@@ -99,10 +149,10 @@ const SocialMediaCalendar = () => {
       : moment(date).format("dddd, MMMM Do, YYYY");
 
   return (
-    <div className="flex h-screen bg-muted/40">
+    <div className="flex h-full">
       {/* Main Calendar Area */}
-      <div className="flex-1 p-6">
-        <Card>
+      <div className="flex-1 p-4">
+        <Card className="border-none shadow-none">
           <CardHeader className="flex flex-col md:flex-row items-center justify-between pb-2">
             <div className="mb-2 md:mb-0">
               <CardTitle className="text-lg font-semibold">Content Calendar</CardTitle>
@@ -130,96 +180,50 @@ const SocialMediaCalendar = () => {
               <Button variant="outline" size="sm" onClick={() => setView(Views.MONTH)}>
                 Month
               </Button>
-              <Button className="ml-4" onClick={() => setShowSidebar(true)}>
-                <Plus className="mr-2 h-4 w-4" /> New Post
-              </Button>
             </div>
           </CardHeader>
           <CardContent className="pt-4">
-            <BigCalendar
-              localizer={localizer}
-              events={events}
-              startAccessor="start"
-              endAccessor="end"
-              view={view}
-              onView={setView}
-              date={date}
-              onNavigate={setDate}
-              style={{ height: "70vh" }}
-              components={{
-                event: Event,
-              }}
-              eventPropGetter={(event) => ({
-                className: "!bg-background !border-muted hover:border-primary cursor-pointer",
-              })}
-              toolbar={false}
-              className="rounded-lg border bg-background"
-            />
+            <div className="h-[70vh]">
+              <BigCalendar
+                localizer={localizer}
+                events={groupEvents()}
+                components={{
+                  event: EventCount,
+                }}
+                startAccessor="start"
+                endAccessor="end"
+                view={view}
+                onView={setView}
+                date={date}
+                onNavigate={setDate}
+                eventPropGetter={(event) => ({
+                  style: {
+                    cursor: 'pointer'
+                  }
+                })}
+                toolbar={false}
+                className="
+                  rounded-lg 
+                  [&_.rbc-header]:border-muted/80 [&_.rbc-header]:bg-transparent
+                  [&_.rbc-month-view]:border-muted/80
+                  [&_.rbc-time-view]:border-muted/30
+                  [&_.rbc-agenda-view]:border-muted/30
+                  [&_.rbc-today]:bg-accent/50
+                  [&_.rbc-event-content]:min-h-[24px] [&_.rbc-event-content]:flex [&_.rbc-event-content]:items-center [&_.rbc-event-content]:justify-center
+                  [&_.rbc-event]:min-h-[24px] [&_.rbc-event]:overflow-visible
+                "
+              />
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Scheduling Sidebar */}
-      {showSidebar && (
-        <div className="w-96 border-l bg-background p-6 shadow-lg">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold">Schedule New Post</h3>
-            <Button variant="ghost" size="sm" onClick={() => setShowSidebar(false)}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Platform" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="twitter">
-                  <div className="flex items-center gap-2">
-                    <X className="h-4 w-4 text-blue-500" />
-                    Twitter
-                  </div>
-                </SelectItem>
-                <SelectItem value="linkedin">
-                  <div className="flex items-center gap-2">
-                    <AiFillLinkedin className="h-4 w-4 text-[#0A66C2]" />
-                    LinkedIn
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-
-            <div className="grid grid-cols-3 gap-2">
-              <Button variant="outline" className="h-24">
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Text
-              </Button>
-              <Button variant="outline" className="h-24">
-                <Image className="mr-2 h-4 w-4" />
-                Image
-              </Button>
-              <Button variant="outline" className="h-24">
-                <Video className="mr-2 h-4 w-4" />
-                Video
-              </Button>
-            </div>
-
-            <Input placeholder="Write your post content..." className="h-32" />
-
-            <div className="flex items-center gap-2">
-              <div className="flex-1">
-                <Input
-                  type="date"
-                  value={date.toISOString().substring(0, 10)}
-                  onChange={(e) => setDate(new Date(e.target.value))}
-                  className="p-2 border rounded"
-                />
-              </div>
-              <Button className="flex-1">Schedule Post</Button>
-            </div>
-          </div>
-        </div>
+      {selectedPosts.length > 0 && (
+        <PostDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          posts={selectedPosts}
+        />
       )}
     </div>
   );

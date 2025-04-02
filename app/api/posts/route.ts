@@ -16,12 +16,14 @@ export async function POST(req: Request) {
   try {
     const { content, mediaUrl, scheduledAt, platform, accountId, calendarId } = await req.json();
 
+    const isImmediatePost = new Date(scheduledAt) <= new Date();
     const newPost = await prisma.scheduledPost.create({
       data: {
         content,
         mediaUrl,
         scheduledAt: new Date(scheduledAt),
-        status: new Date(scheduledAt) > new Date() ? 'scheduled' : 'published',
+        postedAt: isImmediatePost ? new Date() : null,
+        status: isImmediatePost ? 'published' : 'scheduled',
         platform,
         accountId,
         calendarId,
