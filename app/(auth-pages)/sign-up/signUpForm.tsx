@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { Spinner } from "@/components/ui/spinner";
 
 const formSchema = z
   .object({
@@ -46,20 +48,27 @@ export function SignUpForm({ onSuccess, onError }: SignUpFormProps) {
     },
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   async function onSubmit(values: FormValues) {
-    const { fullName, email, password } = values;
-    // Pass the full name in the user_metadata (or data) field
-    const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { full_name: fullName }
-    }
-  });
-    if (error) {
-      onError(error.message);
-    } else {
-      onSuccess();
+    try {
+      setIsLoading(true);
+      const { fullName, email, password } = values;
+      // Pass the full name in the user_metadata (or data) field
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName }
+        }
+      });
+      if (error) {
+        onError(error.message);
+      } else {
+        onSuccess();
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -122,8 +131,15 @@ export function SignUpForm({ onSuccess, onError }: SignUpFormProps) {
           )}
         />
 
-        <Button type="submit" className="w-full">
-          Create Account
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2">
+              <Spinner size="sm" />
+              Creating Account...
+            </div>
+          ) : (
+            'Create Account'
+          )}
         </Button>
       </form>
     </Form>

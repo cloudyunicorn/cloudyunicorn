@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 
 interface TwitterProfile {
   id: string;
@@ -54,7 +55,14 @@ export default function TwitterProfileCard() {
   }, []);
 
   // While loading, you can choose to display nothing or a loader.
-  if (loading) return <p>Loading Twitter profile...</p>;
+  if (loading) return (
+    <Card className="max-w-md mx-auto">
+      <CardHeader className="flex items-center justify-center gap-4">
+        <Spinner size="md" />
+        <span>Loading Twitter profile...</span>
+      </CardHeader>
+    </Card>
+  );
 
   // If error indicates account not connected, return null.
   if (error && error.toLowerCase().includes("twitter account not connected"))

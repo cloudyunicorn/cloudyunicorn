@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RiTwitterXFill } from "react-icons/ri";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function UnlinkTwitterButton({ onUnlink }: { onUnlink: () => void }) {
   const [loading, setLoading] = useState(false);
@@ -31,8 +32,17 @@ export default function UnlinkTwitterButton({ onUnlink }: { onUnlink: () => void
       variant="destructive"
       className="w-full gap-2"
     >
-      <RiTwitterXFill />
-      {loading ? "Unlinking..." : "Unlink Twitter"}
+      {loading ? (
+        <div className="flex items-center gap-2">
+          <Spinner size="sm" />
+          Unlinking...
+        </div>
+      ) : (
+        <>
+          <RiTwitterXFill />
+          Unlink Twitter
+        </>
+      )}
     </Button>
   );
 }

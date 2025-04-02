@@ -5,12 +5,8 @@ import { Calendar as BigCalendar, View, Views, momentLocalizer } from "react-big
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Plus, Settings, CalendarIcon, MessageSquare, Image, Video, X } from "lucide-react";
-import { AiFillLinkedin } from "react-icons/ai";
+import { Spinner } from "@/components/ui/spinner";
 
 const localizer = momentLocalizer(moment);
 
@@ -35,6 +31,7 @@ const SocialMediaCalendar = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [selectedPosts, setSelectedPosts] = useState<CalendarEvent[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Group events by time period based on current view
   const groupEvents = () => {
@@ -115,6 +112,7 @@ const SocialMediaCalendar = () => {
   useEffect(() => {
     async function fetchEvents() {
       try {
+        setIsLoading(true);
         const response = await fetch('/api/posts/scheduled');
         if (!response.ok) {
           throw new Error('Failed to fetch scheduled posts');
@@ -136,6 +134,8 @@ const SocialMediaCalendar = () => {
         setEvents(calendarEvents);
       } catch (error) {
         console.error('Error fetching scheduled posts:', error);
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchEvents();
@@ -183,8 +183,16 @@ const SocialMediaCalendar = () => {
             </div>
           </CardHeader>
           <CardContent className="pt-4">
-            <div className="h-[70vh]">
-              <BigCalendar
+            <div className="h-[70vh] relative">
+              {isLoading ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <Spinner size="lg" />
+                    <span>Loading scheduled posts...</span>
+                  </div>
+                </div>
+              ) : (
+                <BigCalendar
                 localizer={localizer}
                 events={groupEvents()}
                 components={{
@@ -212,7 +220,8 @@ const SocialMediaCalendar = () => {
                   [&_.rbc-event-content]:min-h-[24px] [&_.rbc-event-content]:flex [&_.rbc-event-content]:items-center [&_.rbc-event-content]:justify-center
                   [&_.rbc-event]:min-h-[24px] [&_.rbc-event]:overflow-visible
                 "
-              />
+                />
+              )}
             </div>
           </CardContent>
         </Card>

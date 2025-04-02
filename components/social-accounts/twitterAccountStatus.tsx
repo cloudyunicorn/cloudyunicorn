@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import UnlinkTwitterButton from './unlinkTwitterButton';
 import ConnectTwitterButton from './connect-twitter';
 import TwitterProfileCard from '../TwitterProfileCard';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function TwitterAccountStatus() {
   const [linked, setLinked] = useState<boolean | null>(null);
@@ -23,7 +24,12 @@ export default function TwitterAccountStatus() {
     fetchTwitterStatus();
   }, []);
 
-  if (linked === null) return <p>Loading Twitter status...</p>;
+  if (linked === null) return (
+    <div className="flex items-center justify-center gap-2 p-4">
+      <Spinner size="sm" />
+      <span>Loading Twitter status...</span>
+    </div>
+  );
 
   return (
     <div>

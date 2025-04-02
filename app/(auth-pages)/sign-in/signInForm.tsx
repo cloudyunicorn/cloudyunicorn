@@ -15,6 +15,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { signInAction } from "@/lib/actions/user.action";
+import { useState } from 'react';
+import { Spinner } from '@/components/ui/spinner';
 
 const formSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -38,9 +40,23 @@ export function SignInForm({ onSuccess, onError }: SignInFormProps) {
     },
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onSubmit = async (values: FormValues) => {
+    try {
+      setIsLoading(true);
+      await signInAction(values);
+      onSuccess();
+    } catch (error) {
+      onError(error instanceof Error ? error.message : 'Sign in failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(signInAction)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="email"
@@ -76,8 +92,15 @@ export function SignInForm({ onSuccess, onError }: SignInFormProps) {
           )}
         />
 
-        <Button type="submit" className="w-full">
-          Sign In
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2">
+              <Spinner size="sm" />
+              Signing In...
+            </div>
+          ) : (
+            'Sign In'
+          )}
         </Button>
       </form>
     </Form>
