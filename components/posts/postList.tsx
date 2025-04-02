@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Spinner } from '../ui/spinner';
+import { useData } from '@/context/DataContext';
+
 interface ScheduledPost {
   id: string;
   content: string;
@@ -12,38 +14,29 @@ interface ScheduledPost {
 }
 
 const PostList = () => {
-  const [posts, setPosts] = useState<ScheduledPost[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchScheduledPosts = async () => {
-      try {
-        const response = await fetch('/api/posts/scheduled');
-        if (!response.ok) {
-          throw new Error('Failed to fetch scheduled posts');
-        }
-        const data = await response.json();
-        const sortedPosts = [...data].sort(
-          (a: ScheduledPost, b: ScheduledPost) =>
-            new Date(b.scheduledAt).getTime() -
-            new Date(a.scheduledAt).getTime()
-        );
-        setPosts(sortedPosts);
-      } catch (error) {
-        console.error('Error fetching scheduled posts:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchScheduledPosts();
-  }, []);
+  const { scheduledPosts, twitterStatus } = useData();
+  const isLoading = twitterStatus === null;
+  const hasNoTwitter = twitterStatus === false;
+  
+  const posts = [...scheduledPosts].sort(
+    (a: ScheduledPost, b: ScheduledPost) =>
+      new Date(b.scheduledAt).getTime() -
+      new Date(a.scheduledAt).getTime()
+  );
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center gap-4 py-4">
         <Spinner />
         <div>Loading Posts...</div>
+      </div>
+    );
+  }
+
+  if (hasNoTwitter) {
+    return (
+      <div className="text-center text-gray-500 py-4">
+        Connect Twitter account to view posts
       </div>
     );
   }
@@ -60,7 +53,7 @@ const PostList = () => {
         <CardTitle>Twitter Posts</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {posts.map((post) => (
+        {posts.map((post: ScheduledPost) => (
           <Card key={post.id}>
             <CardContent className="p-4">
               <div className="flex justify-between items-start">

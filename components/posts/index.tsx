@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
 import PostCreator from "./postCreater"
 import PostList from "./postList"
+import { useData } from '@/context/DataContext'
 
 const PostTweet = () => {
   const [refreshKey, setRefreshKey] = useState(0)
+  const { refreshData } = useData()
 
-  const handlePostCreated = () => {
+  const handlePostCreated = async () => {
+    await refreshData()
     setRefreshKey(prev => prev + 1)
   }
 

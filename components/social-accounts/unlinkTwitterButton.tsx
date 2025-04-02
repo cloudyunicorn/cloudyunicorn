@@ -1,12 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { useData } from "@/context/DataContext";
 import { Button } from "@/components/ui/button";
 import { RiTwitterXFill } from "react-icons/ri";
 import { Spinner } from "@/components/ui/spinner";
 
-export default function UnlinkTwitterButton({ onUnlink }: { onUnlink: () => void }) {
+interface UnlinkTwitterButtonProps {
+  onUnlink?: () => void;
+}
+
+export default function UnlinkTwitterButton({ onUnlink }: UnlinkTwitterButtonProps) {
   const [loading, setLoading] = useState(false);
+
+  const { refreshData } = useData();
 
   const handleUnlinkTwitter = async () => {
     setLoading(true);
@@ -16,7 +23,8 @@ export default function UnlinkTwitterButton({ onUnlink }: { onUnlink: () => void
       if (data.error) {
         console.error("Error unlinking Twitter:", data.error);
       } else {
-        onUnlink();
+        onUnlink?.();
+        await refreshData();
       }
     } catch (error) {
       console.error("Error unlinking Twitter:", error);

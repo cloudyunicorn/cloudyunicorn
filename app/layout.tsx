@@ -2,6 +2,7 @@ import { Geist } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import './globals.css';
 import { SupabaseProvider } from '@/providers/supabase-provider';
+import { DataProvider } from '@/context/DataContext';
 import Footer from '@/components/Footer';
 import Header from '@/components/header';
 
@@ -35,7 +36,11 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <main>{children}</main>
+            <main>
+              <DataProvider>
+                {children}
+              </DataProvider>
+            </main>
           </ThemeProvider>
         </body>
       </SupabaseProvider>

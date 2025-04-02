@@ -11,7 +11,6 @@ export default function ConnectTwitterButton() {
   const handleConnectTwitter = async () => {
     setLoading(true);
     try {
-      // Call the API route to get the Twitter auth URL and request token
       const res = await fetch('/api/twitter/request', { method: 'GET' });
       const data = await res.json();
       if (data.error) {
@@ -19,8 +18,12 @@ export default function ConnectTwitterButton() {
         setLoading(false);
         return;
       }
-      // Redirect the user to Twitter for authentication
+
+      // Redirect to Twitter auth page
+      // Store current time to detect fresh auth later
+      localStorage.setItem('twitterAuthStart', Date.now().toString());
       window.location.href = data.authUrl;
+
     } catch (error) {
       console.error('Error connecting Twitter:', error);
     } finally {

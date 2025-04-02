@@ -7,6 +7,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
+import { useData } from "@/context/DataContext";
 
 const localizer = momentLocalizer(moment);
 
@@ -28,10 +29,33 @@ interface CalendarEvent {
 const SocialMediaCalendar = () => {
   const [view, setView] = useState<View>(Views.MONTH);
   const [date, setDate] = useState<Date>(new Date());
+  const { scheduledPosts, twitterStatus, refreshData } = useData();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [selectedPosts, setSelectedPosts] = useState<CalendarEvent[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const isLoading = twitterStatus === null;
+  const hasNoTwitter = twitterStatus === false;
+
+  // Convert scheduled posts to calendar events
+  useEffect(() => {
+    const calendarEvents = scheduledPosts.map((post) => ({
+      id: post.id,
+      title: post.content,
+      start: new Date(post.scheduledAt),
+      end: new Date(new Date(post.scheduledAt).getTime() + 30 * 60 * 1000), // 30 min duration
+      scheduledAt: new Date(post.scheduledAt),
+      platform: post.platform,
+      content: post.content,
+      status: post.status,
+      postedAt: post.postedAt ? new Date(post.postedAt) : undefined
+    }));
+    setEvents(calendarEvents);
+  }, [scheduledPosts]);
+
+  // Refresh data when Twitter status changes
+  useEffect(() => {
+    refreshData();
+  }, [twitterStatus, refreshData]);
 
   // Group events by time period based on current view
   const groupEvents = () => {
@@ -108,38 +132,10 @@ const SocialMediaCalendar = () => {
     setDate(new Date());
   };
 
-  // Fetch scheduled posts from API
+  // Refresh data on mount
   useEffect(() => {
-    async function fetchEvents() {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/posts/scheduled');
-        if (!response.ok) {
-          throw new Error('Failed to fetch scheduled posts');
-        }
-        const posts = await response.json();
-        
-        const calendarEvents = posts.map((post: any) => ({
-          id: post.id,
-          title: post.content,
-          start: new Date(post.scheduledAt),
-          end: new Date(new Date(post.scheduledAt).getTime() + 30 * 60 * 1000), // 30 min duration
-          scheduledAt: new Date(post.scheduledAt),
-          platform: post.platform,
-          content: post.content,
-          status: post.status,
-          postedAt: post.postedAt ? new Date(post.postedAt) : undefined
-        }));
-        
-        setEvents(calendarEvents);
-      } catch (error) {
-        console.error('Error fetching scheduled posts:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchEvents();
-  }, []);
+    refreshData();
+  }, [refreshData]);
 
   const headerLabel =
     view === Views.MONTH
