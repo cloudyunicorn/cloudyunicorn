@@ -50,6 +50,7 @@ model ContentCalendar {
 model ScheduledPost {
   id          String          @id @default(cuid())
   content     String
+  mediaIds    String[]        @default([])
   mediaUrl    String?
   scheduledAt DateTime
   postedAt    DateTime?

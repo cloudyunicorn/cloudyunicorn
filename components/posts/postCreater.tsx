@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { CalendarIcon, Image, Smile, MapPin } from 'lucide-react'
+import { CalendarIcon, Image, Smile, MapPin, X } from 'lucide-react'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { Switch } from '@/components/ui/switch'
@@ -18,7 +18,13 @@ interface PostCreatorProps {
   onPostCreated: () => void
 }
 
+interface MediaFile {
+  file: File
+  preview: string
+}
+
 const MAX_CHARS = 280
+const MAX_MEDIA = 4 // Twitter allows max 4 media per tweet
 
 const PostCreator = ({ onPostCreated }: PostCreatorProps) => {
   const [content, setContent] = useState('')
@@ -26,9 +32,26 @@ const PostCreator = ({ onPostCreated }: PostCreatorProps) => {
   const [date, setDate] = useState<Date>()
   const [time, setTime] = useState('12:00')
   const [isLoading, setIsLoading] = useState(false)
+  const [media, setMedia] = useState<MediaFile[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const charsLeft = MAX_CHARS - content.length
   const isOverLimit = charsLeft < 0
+
+  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files).slice(0, MAX_MEDIA - media.length)
+      const newMedia = files.map(file => ({
+        file,
+        preview: URL.createObjectURL(file)
+      }))
+      setMedia(prev => [...prev, ...newMedia])
+    }
+  }
+
+  const removeMedia = (index: number) => {
+    setMedia(prev => prev.filter((_, i) => i !== index))
+  }
 
   const handleSubmit = async () => {
     if (isOverLimit) return
@@ -42,15 +65,18 @@ const PostCreator = ({ onPostCreated }: PostCreatorProps) => {
         scheduledAt = scheduledDate.toISOString()
       }
 
+      const formData = new FormData()
+      formData.append('content', content)
+      if (scheduledAt) {
+        formData.append('scheduledAt', scheduledAt)
+      }
+      media.forEach((item, index) => {
+        formData.append(`media`, item.file)
+      })
+
       const response = await fetch('/api/twitter/post', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content,
-          scheduledAt: isScheduled ? scheduledAt : undefined
-        }),
+        body: formData,
       })
 
       if (!response.ok) {
@@ -61,6 +87,7 @@ const PostCreator = ({ onPostCreated }: PostCreatorProps) => {
       setContent('')
       setDate(undefined)
       setIsScheduled(false)
+      setMedia([]) // Clear media previews
       onPostCreated()
     } catch (error) {
       console.error('Error posting tweet:', error)
@@ -87,9 +114,23 @@ const PostCreator = ({ onPostCreated }: PostCreatorProps) => {
           />
 
           <div className="flex items-center justify-between">
-            <div className="flex space-x-1 text-blue-500">
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+          <div className="flex space-x-1 text-blue-500">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8"
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+              >
                 <Image className="h-4 w-4" />
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleMediaChange}
+                  accept="image/*,video/*"
+                  multiple
+                  className="hidden"
+                />
               </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8">
                 <RiFileGifFill className="h-4 w-4" />
@@ -103,7 +144,28 @@ const PostCreator = ({ onPostCreated }: PostCreatorProps) => {
               <Button variant="ghost" size="icon" className="h-8 w-8">
                 <MapPin className="h-4 w-4" />
               </Button>
+          </div>
+
+          {media.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-2">
+              {media.map((item, index) => (
+                <div key={index} className="relative">
+                  <img 
+                    src={item.preview} 
+                    alt="Preview" 
+                    className="h-24 w-24 object-cover rounded-md"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeMedia(index)}
+                    className="absolute top-1 right-1 bg-gray-800 rounded-full p-1"
+                  >
+                    <X className="h-3 w-3 text-white" />
+                  </button>
+                </div>
+              ))}
             </div>
+          )}
 
             <div className="flex items-center space-x-3">
               {content.length > 0 && (

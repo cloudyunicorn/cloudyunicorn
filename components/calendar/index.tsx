@@ -132,9 +132,30 @@ const SocialMediaCalendar = () => {
     setDate(new Date());
   };
 
-  // Refresh data on mount
+  // Poll for published posts and refresh data
   useEffect(() => {
+    const pollInterval = setInterval(async () => {
+      try {
+        // Check for published posts
+        const response = await fetch('/api/posts/scheduled', {
+          method: 'PUT'
+        });
+        
+        if (response.ok) {
+          const { results } = await response.json();
+          if (results && results.length > 0) {
+            refreshData(); // Refresh if any posts were processed
+          }
+        }
+      } catch (error) {
+        console.error('Error polling for published posts:', error);
+      }
+    }, 60000); // Check every minute
+
+    // Initial refresh
     refreshData();
+
+    return () => clearInterval(pollInterval);
   }, [refreshData]);
 
   const headerLabel =

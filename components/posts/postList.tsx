@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Spinner } from '../ui/spinner';
 import { useData } from '@/context/DataContext';
+import Image from 'next/image';
 
 interface ScheduledPost {
   id: string;
@@ -11,6 +12,9 @@ interface ScheduledPost {
   scheduledAt: string;
   postedAt?: string;
   status: string;
+  mediaIds?: string[];
+  mediaUrl?: string;
+  accountId?: string;
 }
 
 const PostList = () => {
@@ -59,7 +63,24 @@ const PostList = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="font-medium">{post.content}</p>
-                  <p className="text-sm text-gray-500">
+                  {post.mediaUrl && (
+                    <div className="mt-2">
+                      <div className="relative h-48 w-full">
+                        <Image
+                          src={post.mediaUrl}
+                          alt="Post media"
+                          fill
+                          className="rounded-md object-cover"
+                          unoptimized
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <p className="text-sm text-gray-500 mt-2">
                     {post.postedAt
                       ? `Posted at: ${format(new Date(post.postedAt), 'PPpp')}`
                       : `Scheduled for: ${format(new Date(post.scheduledAt), 'PPpp')}`}
